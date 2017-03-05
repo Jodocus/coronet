@@ -6,6 +6,8 @@
 #include "endpoint.hpp"
 #include "enc.hpp"
 
+thread_local std::size_t* cache = nullptr;
+
 void worker(Instance&, Queue&, Socket&);
 
 int main() 
