@@ -41,7 +41,7 @@ void Queue::dequeue() {
 		DWORD bytes{ };
 		ULONG_PTR key{ };
 		int error{ };
-		if(::GetQueuedCompletionStatus(_iocp, &bytes, &key, &ol, 3000) == FALSE) {
+		if(::GetQueuedCompletionStatus(_iocp, &bytes, &key, &ol, INFINITE) == FALSE) {
 			DWORD err = ::GetLastError();
 			if(ol == nullptr) raise::sys(u8"GetQueuedCompletionStatus", err);
 			DWORD flags{ };
