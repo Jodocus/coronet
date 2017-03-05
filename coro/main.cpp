@@ -1,4 +1,3 @@
-#include <vld.h>
 #include <iostream>
 #include <experimental/coroutine>
 #include "sockabs.hpp"
