@@ -1,4 +1,6 @@
 #include "sockabs.hpp"
+#include "queue.hpp"
+#include "endpoint.hpp"
 
 Socket::Socket(Queue& q)
 	: _sock{ ::WSASocketW(AF_INET6, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED) }

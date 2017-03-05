@@ -1,10 +1,13 @@
-#include "sockabs.hpp"
+#include "endpoint.hpp"
 #include "enc.hpp"
+#include "except.hpp"
+
+#include <WS2tcpip.h>
 
 Endpoint::Endpoint(const std::string& host, const std::string& service, bool passive)
 	: _rep{ nullptr } 
 {
-	ADDRINFO hints{ };
+	ADDRINFOW hints{ };
 	hints.ai_family = AF_INET6;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;

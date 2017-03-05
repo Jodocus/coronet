@@ -1,14 +1,5 @@
 #include "sockabs.hpp"
-
-namespace raise {
-	[[noreturn]] void net(const char* msg, int code) {
-		throw std::system_error{ std::error_code{ code, std::system_category() }, msg };
-	}
-
-	[[noreturn]] void sys(const char* msg, DWORD code) {
-		throw std::system_error{ std::error_code(code, std::system_category()), msg };
-	}
-}
+#include <MSWSock.h>
 
 Accept_awaiter Socket::async_accept(Queue& q) { return { *this, q }; }
 

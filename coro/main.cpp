@@ -2,6 +2,9 @@
 #include <iostream>
 #include <experimental/coroutine>
 #include "sockabs.hpp"
+#include "threadpool.hpp"
+#include "queue.hpp"
+#include "endpoint.hpp"
 #include "enc.hpp"
 
 void worker(Instance&, Queue&, Socket&);
@@ -35,7 +38,7 @@ task handle(Socket s) {
 
 task server(Queue& q, Socket& l) {
 	for(;;) try {
-		handle(co_await l.async_accept(q));
+		auto task = handle(co_await l.async_accept(q));
 	}
 	catch(std::system_error& e) {
 		std::cerr << e.code().value() << ' ' << e.what();

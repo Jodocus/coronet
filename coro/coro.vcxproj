@@ -118,15 +118,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="endpoint.cpp" />
+    <ClCompile Include="except.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Queue.cpp" />
     <ClCompile Include="sockabs.cpp" />
     <ClCompile Include="socket.cpp" />
+    <ClCompile Include="task.cpp" />
     <ClCompile Include="threadpool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="enc.hpp" />
+    <ClInclude Include="endpoint.hpp" />
+    <ClInclude Include="except.hpp" />
+    <ClInclude Include="queue.hpp" />
     <ClInclude Include="sockabs.hpp" />
+    <ClInclude Include="task.hpp" />
+    <ClInclude Include="threadpool.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

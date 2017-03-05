@@ -7,37 +7,10 @@
 #include <vector>
 
 #include <WinSock2.h>
-#include <MSWSock.h>
-#include <WS2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 
-namespace raise {
-	[[noreturn]] void net(const char*, int code = ::WSAGetLastError());
-	[[noreturn]] void sys(const char*, DWORD code = ::GetLastError());
-}
-
-struct operation : WSAOVERLAPPED {
-	std::error_code ec;
-	std::size_t bytes_transferred;
-	std::experimental::coroutine_handle<> coro;
-
-	operation() : WSAOVERLAPPED{ }, ec{ }, coro{ }, bytes_transferred { } { }
-};
-
-struct task {
-	struct promise_type : operation {
-		task get_return_object() { return { std::experimental::coroutine_handle<promise_type>::from_promise(*this) }; }
-		std::experimental::suspend_never initial_suspend() { return { }; }
-		std::experimental::suspend_always final_suspend() { return { }; }
-	};
-
-	std::experimental::coroutine_handle<promise_type> coro;
-	task(std::experimental::coroutine_handle<promise_type> h) : coro{ h } { }
-
-	void cancel() {
-		auto prom = coro.promise();
-	}
-};
+#include "task.hpp"
+#include "except.hpp"
 
 struct Instance final {
 	Instance() {
@@ -55,42 +28,12 @@ struct Instance final {
 	~Instance() { try { close(); } catch(...) { } }
 };
 
-class Endpoint final {
-	ADDRINFOW* _rep;
-public:
-	friend class Socket;
-	Endpoint() = default;
-	Endpoint(const std::string&, bool = false);
-	Endpoint(const std::string&, const std::string&, bool = false);
-	Endpoint(const Endpoint&) = delete;
-	Endpoint(Endpoint&&) noexcept;
-	Endpoint& operator =(const Endpoint&) = delete;
-	Endpoint& operator =(Endpoint&&) noexcept;
-	~Endpoint();
-
-	void swap(Endpoint&) noexcept;
-};
-
-class Queue {
-	HANDLE _iocp;
-public:
-	friend class Socket;
-	Queue(std::size_t = 0);
-	Queue(const Queue&) = delete;
-	Queue(Queue&&) noexcept;
-	Queue& operator =(const Queue&) = delete;
-	Queue& operator =(Queue&&) noexcept;
-	~Queue();
-
-	void swap(Queue&) noexcept;
-	void close();
-
-	void dequeue();
-};
-
 struct Accept_awaiter;
 struct Receive_awaiter;
 struct Send_awaiter;
+
+class Queue;
+class Endpoint;
 
 class Socket {
 	SOCKET _sock;
@@ -164,22 +107,3 @@ Receive_awaiter Socket::async_receive(char(&buf)[N]) { return { *this, buf, N };
 
 template <std::size_t N>
 Send_awaiter Socket::async_send(const char(&buf)[N]) { return { *this, buf, N }; }
-
-class Threadpool {
-	std::vector<std::thread> _pool;
-public:
-	template <typename T>
-	Threadpool(T f, std::size_t size = std::thread::hardware_concurrency() * 2)
-		: _pool(size) 
-	{
-		for(auto& t : _pool) t.swap(std::thread{ f });
-	}
-
-	Threadpool(const Threadpool&) = delete;
-	Threadpool(Threadpool&&) noexcept;
-	Threadpool& operator =(const Threadpool&) = delete;
-	Threadpool& operator =(Threadpool&&) noexcept;
-
-	void swap(Threadpool&) noexcept;
-	void join();
-};

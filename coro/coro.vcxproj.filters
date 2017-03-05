@@ -33,12 +33,33 @@
     <ClCompile Include="threadpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="except.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="task.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sockabs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="enc.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="threadpool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="except.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="endpoint.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="task.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
