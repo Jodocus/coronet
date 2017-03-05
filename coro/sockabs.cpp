@@ -3,7 +3,7 @@
 
 Accept_awaiter Socket::async_accept(Queue& q) { return { *this, q }; }
 
-void Send_awaiter::await_suspend(std::experimental::coroutine_handle<task::promise_type> resume) {
+bool Send_awaiter::await_suspend(std::experimental::coroutine_handle<Task::promise_type> resume) {
 	resume.promise().coro = resume;
 	coro = resume;
 
@@ -15,10 +15,12 @@ void Send_awaiter::await_suspend(std::experimental::coroutine_handle<task::promi
 	if(::WSASend(sock._sock, &wb, 1, &bytes, 0, &resume.promise(), nullptr) == SOCKET_ERROR) {
 		int err = ::WSAGetLastError();
 		if(err != WSA_IO_PENDING) raise::net(u8"WSASend");
+		return true;
 	}
+	return false;
 }
 
-void Receive_awaiter::await_suspend(std::experimental::coroutine_handle<task::promise_type> resume) {
+bool Receive_awaiter::await_suspend(std::experimental::coroutine_handle<Task::promise_type> resume) {
 	resume.promise().coro = resume;
 	coro = resume;
 
@@ -27,15 +29,19 @@ void Receive_awaiter::await_suspend(std::experimental::coroutine_handle<task::pr
 	wb.len = static_cast<ULONG>(size);
 	DWORD bytes{ };
 	DWORD flags{ };
-	if(::WSARecv(sock._sock, &wb, 1, &bytes, &flags, &resume.promise(), nullptr) == SOCKET_ERROR) {
+	if(::WSARecv(sock._sock, &wb, 1, reinterpret_cast<DWORD*>(&resume.promise().bytes_transferred), &flags, &resume.promise(), nullptr) == SOCKET_ERROR) {
 		int err = ::WSAGetLastError();
-		if(err != WSA_IO_PENDING) raise::net(u8"WSARecv");
+		if(err != WSA_IO_PENDING) 
+			raise::net(u8"WSARecv");
+		return true;
 	}
+	return false;
 }
 
-void Accept_awaiter::await_suspend(std::experimental::coroutine_handle<task::promise_type> resume) {
+void Accept_awaiter::await_suspend(std::experimental::coroutine_handle<Task::promise_type> resume) {
 	coro = resume;
 	resume.promise().coro = resume;
+
 	static struct al {
 		al(SOCKET sock) : accept{ nullptr } {
 			GUID accept_id = WSAID_ACCEPTEX;
@@ -52,6 +58,7 @@ void Accept_awaiter::await_suspend(std::experimental::coroutine_handle<task::pro
 		reinterpret_cast<DWORD*>(&bytes_transferred), &resume.promise()) == FALSE)
 	{
 		int err = ::WSAGetLastError();
-		if(err != WSA_IO_PENDING) raise::net(u8"AcceptEx");
+		if(err != WSA_IO_PENDING) 
+			raise::net(u8"AcceptEx");
 	}
 }

@@ -63,7 +63,7 @@ public:
 };
 
 struct Awaiter {
-	std::experimental::coroutine_handle<task::promise_type> coro;
+	std::experimental::coroutine_handle<Task::promise_type> coro;
 	Socket& sock;
 
 	Awaiter(Socket& s) : sock{ s }, coro{ } { }
@@ -76,7 +76,7 @@ struct Accept_awaiter : Awaiter {
 	Accept_awaiter(Socket& l, Queue& q) : Awaiter(l), conn{ q }, buf{ } { }
 
 	bool await_ready() { return false; }
-	void await_suspend(std::experimental::coroutine_handle<task::promise_type>);
+	void await_suspend(std::experimental::coroutine_handle<Task::promise_type>);
 	Socket await_resume() { return { std::move(conn) }; }
 };
 
@@ -87,7 +87,7 @@ struct Receive_awaiter : Awaiter {
 	Receive_awaiter(Socket& s, char* b, std::size_t ss) : Awaiter(s), buf{ b }, size{ ss } { }
 
 	bool await_ready() { return false; }
-	void await_suspend(std::experimental::coroutine_handle<task::promise_type>);
+	bool await_suspend(std::experimental::coroutine_handle<Task::promise_type>);
 	std::size_t await_resume() { return coro.promise().bytes_transferred; }
 };
 
@@ -98,7 +98,7 @@ struct Send_awaiter : Awaiter {
 	Send_awaiter(Socket& s, const char* b, std::size_t ss) : Awaiter(s), buf{ b }, size{ ss } { }
 
 	bool await_ready() { return false; }
-	void await_suspend(std::experimental::coroutine_handle<task::promise_type>);
+	bool await_suspend(std::experimental::coroutine_handle<Task::promise_type>);
 	std::size_t await_resume() { return coro.promise().bytes_transferred; coro.destroy(); }
 };
 
@@ -106,4 +106,4 @@ template <std::size_t N>
 Receive_awaiter Socket::async_receive(char(&buf)[N]) { return { *this, buf, N }; }
 
 template <std::size_t N>
-Send_awaiter Socket::async_send(const char(&buf)[N]) { return { *this, buf, N }; }
+Send_awaiter Socket::async_send(const char(&buf)[N]) { return { *this, buf, N - 1 }; }

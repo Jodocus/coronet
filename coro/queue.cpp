@@ -48,7 +48,7 @@ void Queue::dequeue() {
 			if(::WSAGetOverlappedResult(static_cast<SOCKET>(key), ol, &bytes, FALSE, &flags) == FALSE)
 				error = ::WSAGetLastError();
 		}
-		auto op = static_cast<task::promise_type*>(ol);
+		auto op = static_cast<Task::promise_type*>(ol);
 		op->bytes_transferred = bytes;
 		op->ec.assign(error, std::system_category());
 		op->coro.resume();

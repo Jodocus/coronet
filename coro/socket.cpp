@@ -8,6 +8,7 @@ Socket::Socket(Queue& q)
 	if(_sock == INVALID_SOCKET) raise::net(u8"WSASocket");
 	if(::CreateIoCompletionPort(reinterpret_cast<HANDLE>(_sock), q._iocp, 0, 0) == FALSE)
 		raise::sys(u8"CreateIoCompletionPort");
+	SetFileCompletionNotificationModes(reinterpret_cast<HANDLE>(_sock), FILE_SKIP_COMPLETION_PORT_ON_SUCCESS);
 }
 
 Socket::~Socket() {

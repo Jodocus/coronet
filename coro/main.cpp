@@ -19,24 +19,23 @@ try {
 	s.bind({ "http", true });
 	s.listen();
 
-	Threadpool{ [&inst, &q, &s]() { worker(inst, q, s); }, 1 }.join();
+	Threadpool{ [&inst, &q, &s]() { worker(inst, q, s); } }.join();
 }
 catch(const std::system_error& e) {
 	std::cerr << "Exception (Code: " << e.code().value() << ")!\n\t" << e.what();
 }
 
-task handle(Socket s) {
+Task handle(Socket s) {
 	char buf[512]{ };
 	auto transferred = co_await s.async_receive(buf);
-	char answer[] = u8"HTTP/1.1 200 OK\r\nServer: GehtDichNixAn!\r\nContent-type: text/html; charset=utf-8\r\n\r\n"
-		"<!doctype html><html><head><title>It works!</title></head><body><h1>It works!</h1><hr />Well done!</body></html>";
+	char answer[] = u8"HTTP/1.1 200 OK\r\nServer: GehtDichNixAn!\r\nContent-type: text/html; charset=utf-8\r\nContent-length: 112\r\n\r\n"
+		u8"<!doctype html><html><head><title>It works!</title></head><body><h1>It works!</h1><hr />Well done!</body></html>";
 	co_await s.async_send(answer);
-	s.close();
 }
 
-task server(Queue& q, Socket& l) {
+Task server(Queue& q, Socket& l) {
 	for(;;) try {
-		auto task = handle(co_await l.async_accept(q));
+		handle(co_await l.async_accept(q));
 	}
 	catch(std::system_error& e) {
 		std::cerr << e.code().value() << ' ' << e.what();

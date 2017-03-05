@@ -13,9 +13,9 @@ struct operation : WSAOVERLAPPED {
 
 extern thread_local std::size_t* cache;
 
-struct task {
+struct Task {
 	struct promise_type : operation {
-		task get_return_object() { return { std::experimental::coroutine_handle<promise_type>::from_promise(*this) }; }
+		Task get_return_object() { return { std::experimental::coroutine_handle<promise_type>::from_promise(*this) }; }
 		std::experimental::suspend_never initial_suspend() { return { }; }
 		std::experimental::suspend_never final_suspend() { return { }; }
 
@@ -35,7 +35,7 @@ struct task {
 	};
 
 	std::experimental::coroutine_handle<promise_type> coro;
-	task(std::experimental::coroutine_handle<promise_type> h) : coro{ h } { }
+	Task(std::experimental::coroutine_handle<promise_type> h) : coro{ h } { }
 
 	void cancel() {
 		auto prom = coro.promise();
