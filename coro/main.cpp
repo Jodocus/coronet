@@ -22,9 +22,6 @@ try {
 catch(const std::system_error& e) {
 	std::cerr << "Exception (Code: " << e.code().value() << ")!\n\t" << e.what();
 }
-catch(std::range_error& e) {
-	std::cerr << "Range Error: " << e.what() << '\n';
-}
 
 task handle(Socket s) {
 	char buf[512]{ };
